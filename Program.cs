@@ -1,133 +1,153 @@
 ﻿using System;
+using System.Collections;
+using System.Threading.Tasks.Dataflow;
 
-// Çift yönlü dairesel bağlı listenin düğüm yapısı
-class Node // Her bir düğümü temsil eder
+public class HashTableIslemleri
 {
-    public int Data; // Düğümün tuttuğu veri
-    public Node Next; // Sonraki düğüme işaretçi
-    public Node Prev; // Önceki düğüme işaretçi
+    // HashTable'ı temsil ediyoruz
+    private Hashtable tablo;  // HashTable veri yapısını tanımlıyoruz
 
-    public Node(int data)
+    public HashTableIslemleri()
     {
-        Data = data;
-        Next = null; //başlangıçta bağlı değiller
-        Prev = null;
+        // Yeni bir HashTable oluşturuyoruz
+        tablo = new Hashtable();  // HashTable nesnesi oluşturuluyor
+    }
+
+    // HashTable'a yeni veri eklemek için metot
+    public void VeriEkle(int numara, string isim)
+    {
+        if (!tablo.ContainsKey(numara)) // Aynı numara daha önce eklenmemişse
+        {
+            tablo.Add(numara, isim); // Numara ve ismi ekliyoruz
+            Console.WriteLine($"Başarıyla {isim} eklendi.");
+        }
+        else
+        {
+            Console.WriteLine("Bu numara zaten mevcut.");
+        }
+    }
+
+    // HashTable'ın tüm içeriğini yazdırmak için metot
+    public void TabloyuYazdir()
+    {
+        if (tablo.Count == 0) // Eğer tablo boşsa
+        {
+            Console.WriteLine("Tablo boş.");
+            return;  // Tablo boşsa işlem bitiriliyor
+        }
+
+        Console.WriteLine("\nTablodaki Öğrenciler:");
+        foreach (DictionaryEntry entry in tablo) // HashTable'ı döngü ile gezip verileri yazdırıyoruz
+        {
+            Console.WriteLine($"Numara: {entry.Key}, İsim: {entry.Value}");  // Her bir öğeyi yazdırıyoruz
+        }
+    }
+
+    // Belirli bir numarayı aramak için metot
+    public void KisiBul(int numara)
+    {
+        if (tablo.ContainsKey(numara))  // Eğer numara HashTable'da varsa
+        {
+            Console.WriteLine($"Numara {numara} - İsim: {tablo[numara]}");  // Numara ve ismi ekrana yazdırıyoruz
+        }
+        else
+        {
+            Console.WriteLine($"{numara} numaralı kişi bulunamadı.");
+        }
+    }
+
+    // Belirli bir numarayı silmek için metot
+    public void KisiSil(int numara)
+    {
+        if (tablo.ContainsKey(numara))  // Eğer numara HashTable'da varsa
+        {
+            tablo.Remove(numara);  // HashTable'dan numarayı sileriz
+            Console.WriteLine($"{numara} numaralı kişi silindi.");
+        }
+        else
+        {
+            Console.WriteLine($"{numara} numaralı kişi bulunamadı.");
+        }
+    }
+
+    // Tabloyu temizlemek için metot
+    public void TabloyuTemizle()
+    {
+        tablo.Clear();  // HashTable'daki tüm verileri temizler
+        Console.WriteLine("Tablo temizlendi.");
     }
 }
 
-// Çift yönlü dairesel bağlı liste sınıfı
-class ÇiftYönlüDaireselBağlıListe
+public class Program
 {
-    private Node head; // Listenin başlangıç düğümü
-    //head değişmezse her zaman listenin ilk elemanını gösterir
-    // Listeye yeni bir düğüm ekleyen metod
-    public void Add(int data)
+    public static void Main()
     {
-        Node newNode = new Node(data); //yeni düğüm oluşturur 
-        if (head == null) //eğer liste boşsa
-        {
-            head = newNode;
-            head.Next = head; //aynı şeyi gösterir 
-            head.Prev = head; //aynı şeyi gösterir 
-        }
-        else // boş değil yeni düğüm eklenmişse 
-        {
-            Node last = head.Prev;  //son düğümü bul
-            last.Next = newNode; // newNode'ye bağla 
-            newNode.Prev = last; // son düğüm artık yeni düğümü gösteriyor.
-            newNode.Next = head; // yeni düğümün sonraki elemanı listeniin başı
-            head.Prev = newNode; //head'ı güncelle
-        }
-    }
+        // HashTableIslemleri sınıfından nesne oluşturuyoruz
+        HashTableIslemleri hashTable = new HashTableIslemleri(); // Veri işlemleri için nesne oluşturuluyor
 
-    // Belirtilen indisteki düğümü listeden silen metod
-    public void DeleteAtIndex(int index)
-    {
-        if (head == null || index < 0) return; // Eğer liste boşsa veya geçersiz indeksse, işlemi sonlandır
-
-        Node current = head; // current şuanki düğümü takip eder
-        int count = 0; // count , mevcut düğümün indeksini tutması için
-
-        // İstenen indekse kadar ilerle
-        do //Dairesel listeyi döngüyle tarıyoruz.
+        // Kullanıcıdan veri girişi alalım
+        bool devamEt = true; // Ana döngü için flag (devam etmesi için true başlatıyoruz)
+        while (devamEt)  // Menü döngüsü
         {
-            if (count == index)  //silinecek düğüme ulaşmak için
+            Console.WriteLine("\nLütfen yapmak istediğiniz işlemi seçin:");  // Kullanıcıya seçenekler sunuluyor
+            Console.WriteLine("1. Veri Ekle");
+            Console.WriteLine("2. Tabloyu Yazdır");
+            Console.WriteLine("3. Kişi Bul");
+            Console.WriteLine("4. Kişi Sil");
+            Console.WriteLine("5. Tabloyu Temizle");
+            Console.WriteLine("6. Çıkış");
+
+            int secim;  // Kullanıcının seçimini alıyoruz
+            if (int.TryParse(Console.ReadLine(), out secim))  // Kullanıcıdan gelen input'u int türüne dönüştürüyoruz
             {
-                if (current == head && current.Next == head)
+                switch (secim)  // Seçime göre işlem yapıyoruz
                 {
-                    // Listede tek eleman varsa listeyi boşalt
-                    head = null;
+                    case 1:  // Veri ekleme
+                        Console.Write("Numara girin: ");  // Kullanıcıdan numara alıyoruz
+                        int numara = Convert.ToInt32(Console.ReadLine());  // Numara inputu alınıyor
+
+                        Console.Write("İsim girin: ");  // Kullanıcıdan isim alıyoruz
+                        string isim = Console.ReadLine();  // İsim inputu alınıyor
+
+                        hashTable.VeriEkle(numara, isim);  // HashTable'a veri ekleniyor
+                        break;
+
+                    case 2:  // Tabloyu yazdırma
+                        hashTable.TabloyuYazdir();  // Tabloyu ekrana yazdırıyoruz
+                        break;
+
+                    case 3:  // Kişi arama
+                        Console.Write("Aramak istediğiniz numarayı girin: ");  // Kullanıcıdan arama yapılacak numara alınıyor
+                        int arananNumara = Convert.ToInt32(Console.ReadLine());  // Numara inputu alınıyor
+                        hashTable.KisiBul(arananNumara);  // Kişiyi arıyoruz
+                        break;
+
+                    case 4:  // Kişi silme
+                        Console.Write("Silmek istediğiniz numarayı girin: ");  // Kullanıcıdan silinecek numara alınıyor
+                        int silinecekNumara = Convert.ToInt32(Console.ReadLine());  // Numara inputu alınıyor
+                        hashTable.KisiSil(silinecekNumara);  // Kişiyi siliyoruz
+                        break;
+
+                    case 5:  // Tabloyu temizleme
+                        hashTable.TabloyuTemizle();  // Tabloyu temizliyoruz
+                        break;
+
+                    case 6:  // Çıkış
+                        devamEt = false;  // Döngüyü sonlandırıyoruz
+                        break;
+
+                    default:  // Geçersiz seçenek
+                        Console.WriteLine("Geçersiz seçim! Lütfen tekrar deneyin.");
+                        break;
                 }
-                else if (current == head)
-                {
-                    // Eğer silinecek düğüm baş düğümse (head) ise 
-                    Node last = head.Prev; // Son düğümü bul
-                    head = head.Next; // Başlığı bir sonraki düğüme kaydır
-                    head.Prev = last; // Yeni başın önceki düğümü güncelle
-                    last.Next = head; // Son düğümün yeni başı işaret etmesini sağla // sayıyı sildikten sonraki düzen için gerekli kodlar
-                }
-                else
-                {
-                    // Orta veya son düğümse
-                    current.Prev.Next = current.Next; // Önceki düğümün Next bağlantısı, şu anki düğümün sonrasına bağlanır.
-                    current.Next.Prev = current.Prev; // Sonraki düğümün Prev bağlantısı, şu anki düğümün öncesine bağlanır.
-                }
-                return;
             }
-            current = current.Next; //belirtilen indeksteki düğümü bulana kadar
-            count++; // tarama yapılır
-        } while (current != head); // Dairesel liste olduğu için başa dönene kadar devam et
-    }
-
-    // Listenin elemanlarını ekrana yazdıran metod
-    public void Display()
-    {
-        if (head == null) // boş liste kontrolü 
-        {
-            Console.WriteLine("Liste boş!");
-            return;
-        }
-        // Liste boş değilse, ilk elemandan başlamak üzere yazdırma işlemi yapılacak.
-        Node temp = head; // elemanların sırasını takip etmek için
-        int index = 0;
-        do
-        {
-            Console.Write("[" + index + "] " + temp.Data + " <-> "); // Her bir elemanı [index] Data <-> şeklinde ekrana yazdırır.
-
-            temp = temp.Next; //temp bir sonraki elemana yönlendirilir 
-            index++; // bir sonraki eleman için index arttırılır.
-        } while (temp != head); // başa döner
-        Console.WriteLine("(Başa Dön)");
-    }
-}
-
-// Programın çalışmasını sağlayan ana sınıf
-class Program
-{
-    static void Main()
-    {
-        ÇiftYönlüDaireselBağlıListe list = new ÇiftYönlüDaireselBağlıListe();
-
-        Console.Write("Kaç eleman eklemek istiyorsunuz? ");
-        int n = int.Parse(Console.ReadLine()); // veri alıyoruz 
-
-        for (int i = 0; i < n; i++) // kullanıcıdan belirtilen sayı kadar veri alıyoruz 
-        {
-            Console.Write("Eleman girin: ");
-            int value = int.Parse(Console.ReadLine());
-            list.Add(value); //elemanı listeye ekliyoruz 
+            else  // Eğer geçersiz bir seçim yapıldıysa
+            {
+                Console.WriteLine("Geçersiz giriş! Lütfen geçerli bir seçenek girin.");
+            }
         }
 
-        Console.WriteLine("Başlangıç Listesi:"); //ekrana yazdırıyoruz 
-        list.Display();
-
-        Console.Write("Silmek istediğiniz elemanın indeksini girin: ");
-        int deleteIndex = int.Parse(Console.ReadLine()); //silmek istediğimiz indeksi alıp siliyoruz
-
-        list.DeleteAtIndex(deleteIndex); //siliiyor
-
-        Console.WriteLine("Güncellenmiş Liste:"); // son liste
-        list.Display();
+        Console.WriteLine("Program sonlandırıldı.");
     }
 }
 
