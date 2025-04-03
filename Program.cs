@@ -1,133 +1,88 @@
 ﻿using System;
+using System.Collections.Generic; // Stack kullanabilmek için gerekli kütüphane
 
-// Çift yönlü dairesel bağlı listenin düğüm yapısı
-class Node // Her bir düğümü temsil eder
+public class Program
 {
-    public int Data; // Düğümün tuttuğu veri
-    public Node Next; // Sonraki düğüme işaretçi
-    public Node Prev; // Önceki düğüme işaretçi
-
-    public Node(int data)
+    public static void Main()
     {
-        Data = data;
-        Next = null; //başlangıçta bağlı değiller
-        Prev = null;
-    }
-}
+        // Stack (Yığın) yapısını tanımlıyoruz. 
+        // Stack, Last In First Out (LIFO) prensibine göre çalışır. Yani son eklenen ilk çıkar.
+        Stack<int> yigin = new Stack<int>();
 
-// Çift yönlü dairesel bağlı liste sınıfı
-class ÇiftYönlüDaireselBağlıListe
-{
-    private Node head; // Listenin başlangıç düğümü
-    //head değişmezse her zaman listenin ilk elemanını gösterir
-    // Listeye yeni bir düğüm ekleyen metod
-    public void Add(int data)
-    {
-        Node newNode = new Node(data); //yeni düğüm oluşturur 
-        if (head == null) //eğer liste boşsa
+        // Kullanıcıya kaç eleman eklemek istediğini soruyoruz.
+        Console.WriteLine("Kaç eleman eklemek istersiniz?");
+        int elemanSayisi;
+
+        // Kullanıcıdan geçerli bir sayı almayı sağlıyoruz
+        while (!int.TryParse(Console.ReadLine(), out elemanSayisi) || elemanSayisi <= 0)
         {
-            head = newNode;
-            head.Next = head; //aynı şeyi gösterir 
-            head.Prev = head; //aynı şeyi gösterir 
+            Console.WriteLine("Lütfen geçerli bir pozitif sayı girin.");
         }
-        else // boş değil yeni düğüm eklenmişse 
+
+        // Kullanıcıdan elemanları alıp yığına ekliyoruz
+        for (int i = 0; i < elemanSayisi; i++)
         {
-            Node last = head.Prev;  //son düğümü bul
-            last.Next = newNode; // newNode'ye bağla 
-            newNode.Prev = last; // son düğüm artık yeni düğümü gösteriyor.
-            newNode.Next = head; // yeni düğümün sonraki elemanı listeniin başı
-            head.Prev = newNode; //head'ı güncelle
-        }
-    }
+            Console.WriteLine($"Yığına eklemek istediğiniz {i + 1}. elemanı girin:");
+            int eleman;
 
-    // Belirtilen indisteki düğümü listeden silen metod
-    public void DeleteAtIndex(int index)
-    {
-        if (head == null || index < 0) return; // Eğer liste boşsa veya geçersiz indeksse, işlemi sonlandır
-
-        Node current = head; // current şuanki düğümü takip eder
-        int count = 0; // count , mevcut düğümün indeksini tutması için
-
-        // İstenen indekse kadar ilerle
-        do //Dairesel listeyi döngüyle tarıyoruz.
-        {
-            if (count == index)  //silinecek düğüme ulaşmak için
+            // Kullanıcıdan geçerli bir sayı alıyoruz
+            while (!int.TryParse(Console.ReadLine(), out eleman))
             {
-                if (current == head && current.Next == head)
-                {
-                    // Listede tek eleman varsa listeyi boşalt
-                    head = null;
-                }
-                else if (current == head)
-                {
-                    // Eğer silinecek düğüm baş düğümse (head) ise 
-                    Node last = head.Prev; // Son düğümü bul
-                    head = head.Next; // Başlığı bir sonraki düğüme kaydır
-                    head.Prev = last; // Yeni başın önceki düğümü güncelle
-                    last.Next = head; // Son düğümün yeni başı işaret etmesini sağla // sayıyı sildikten sonraki düzen için gerekli kodlar
-                }
-                else
-                {
-                    // Orta veya son düğümse
-                    current.Prev.Next = current.Next; // Önceki düğümün Next bağlantısı, şu anki düğümün sonrasına bağlanır.
-                    current.Next.Prev = current.Prev; // Sonraki düğümün Prev bağlantısı, şu anki düğümün öncesine bağlanır.
-                }
-                return;
+                Console.WriteLine("Lütfen geçerli bir sayı girin.");
             }
-            current = current.Next; //belirtilen indeksteki düğümü bulana kadar
-            count++; // tarama yapılır
-        } while (current != head); // Dairesel liste olduğu için başa dönene kadar devam et
-    }
 
-    // Listenin elemanlarını ekrana yazdıran metod
-    public void Display()
-    {
-        if (head == null) // boş liste kontrolü 
-        {
-            Console.WriteLine("Liste boş!");
-            return;
-        }
-        // Liste boş değilse, ilk elemandan başlamak üzere yazdırma işlemi yapılacak.
-        Node temp = head; // elemanların sırasını takip etmek için
-        int index = 0;
-        do
-        {
-            Console.Write("[" + index + "] " + temp.Data + " <-> "); // Her bir elemanı [index] Data <-> şeklinde ekrana yazdırır.
-
-            temp = temp.Next; //temp bir sonraki elemana yönlendirilir 
-            index++; // bir sonraki eleman için index arttırılır.
-        } while (temp != head); // başa döner
-        Console.WriteLine("(Başa Dön)");
-    }
-}
-
-// Programın çalışmasını sağlayan ana sınıf
-class Program
-{
-    static void Main()
-    {
-        ÇiftYönlüDaireselBağlıListe list = new ÇiftYönlüDaireselBağlıListe();
-
-        Console.Write("Kaç eleman eklemek istiyorsunuz? ");
-        int n = int.Parse(Console.ReadLine()); // veri alıyoruz 
-
-        for (int i = 0; i < n; i++) // kullanıcıdan belirtilen sayı kadar veri alıyoruz 
-        {
-            Console.Write("Eleman girin: ");
-            int value = int.Parse(Console.ReadLine());
-            list.Add(value); //elemanı listeye ekliyoruz 
+            yigin.Push(eleman); // Yığına elemanı ekliyoruz
         }
 
-        Console.WriteLine("Başlangıç Listesi:"); //ekrana yazdırıyoruz 
-        list.Display();
+        // Stack'in şu anki durumunu ekrana yazdırıyoruz.
+        Console.WriteLine("\nYığındaki elemanlar (ters sırayla):");
+        // Stack içerisindeki elemanları ters sırayla yazdırıyoruz
+        foreach (int eleman in yigin)
+        {
+            Console.WriteLine(eleman); // Yığındaki her elemanı yazdırıyoruz
+        }
 
-        Console.Write("Silmek istediğiniz elemanın indeksini girin: ");
-        int deleteIndex = int.Parse(Console.ReadLine()); //silmek istediğimiz indeksi alıp siliyoruz
+        // Yığın yapısında eleman çıkarmak için Pop metodu kullanılır.
+        // Pop metodu, yığından en son eklenen elemanı çıkarır.
+        if (yigin.Count > 0)
+        {
+            Console.WriteLine("\nYığından çıkarılan eleman: " + yigin.Pop());
+        }
+        else
+        {
+            Console.WriteLine("\nYığın boş, çıkarılacak eleman yok.");
+        }
 
-        list.DeleteAtIndex(deleteIndex); //siliiyor
+        // Yığındaki elemanları tekrar yazdırıyoruz.
+        Console.WriteLine("\nPop işleminden sonra yığındaki elemanlar:");
+        // Yığındaki her elemanı ters sırayla yazdırmak için ToArray() kullanıyoruz
+        foreach (int eleman in yigin.ToArray())
+        {
+            Console.WriteLine(eleman); // Yığındaki her elemanı yazdırıyoruz
+        }
 
-        Console.WriteLine("Güncellenmiş Liste:"); // son liste
-        list.Display();
+        // Peek metodu, yığındaki en üstteki elemanı çıkarılmadan görüntülememizi sağlar.
+        if (yigin.Count > 0)
+        {
+            Console.WriteLine("\nYığının en üst elemanı (Peek): " + yigin.Peek());
+        }
+        else
+        {
+            Console.WriteLine("\nYığın boş, en üst eleman yok.");
+        }
+
+        // Yığının boş olup olmadığını kontrol ediyoruz.
+        Console.WriteLine("\nYığın boş mu? " + (yigin.Count == 0));
+
+        // Yığının son durumu yazdırılıyor
+        Console.WriteLine("\nYığının son durumu:");
+        foreach (int eleman in yigin.ToArray())
+        {
+            Console.WriteLine(eleman); // Yığındaki her elemanı yazdırıyoruz
+        }
+
+        // Programın kapanmasını engellemek için bir tuşa basmayı bekliyoruz
+        Console.WriteLine("\nProgramı kapatmak için bir tuşa basın...");
+        Console.ReadLine(); // Program kapanmadan önce duraklatma
     }
 }
-
