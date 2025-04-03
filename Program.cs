@@ -1,133 +1,152 @@
 ﻿using System;
 
-// Çift yönlü dairesel bağlı listenin düğüm yapısı
-class Node // Her bir düğümü temsil eder
+public class AğaçNode
 {
-    public int Data; // Düğümün tuttuğu veri
-    public Node Next; // Sonraki düğüme işaretçi
-    public Node Prev; // Önceki düğüme işaretçi
+    // Ağaç düğümünü temsil eder.
+    // Bir düğümde, veri ve sol ve sağ düğüm vardır.
+    public int Veri; // Düğümdeki veri
+    public AğaçNode Sol; // Sol alt düğüm
+    public AğaçNode Sağ; // Sağ alt düğüm
 
-    public Node(int data)
+    // Düğümün constructor'ı
+    public AğaçNode(int veri)
     {
-        Data = data;
-        Next = null; //başlangıçta bağlı değiller
-        Prev = null;
+        Veri = veri; // Düğümdeki veriyi ayarlıyoruz
+        Sol = null;  // Sol alt ağacın başlangıçta boş olduğunu belirliyoruz
+        Sağ = null;  // Sağ alt ağacın başlangıçta boş olduğunu belirliyoruz
     }
 }
 
-// Çift yönlü dairesel bağlı liste sınıfı
-class ÇiftYönlüDaireselBağlıListe
+public class Ağaç
 {
-    private Node head; // Listenin başlangıç düğümü
-    //head değişmezse her zaman listenin ilk elemanını gösterir
-    // Listeye yeni bir düğüm ekleyen metod
-    public void Add(int data)
+    public AğaçNode Kök; // Ağaç yapısının başlangıç düğümü (root)
+
+    // Ağaç constructor'ı
+    public Ağaç()
     {
-        Node newNode = new Node(data); //yeni düğüm oluşturur 
-        if (head == null) //eğer liste boşsa
+        Kök = null; // Ağacın başlangıçta boş olduğunu belirliyoruz
+    }
+
+    // Ağaca yeni bir düğüm eklemek için yöntem
+    public void Ekle(int veri)
+    {
+        Kök = EkleRec(Kök, veri); // Veriyi ağaca eklemek için rekürsif fonksiyon (Binary Search Tree) çağrılır
+    }
+
+    // Ağaca yeni bir düğüm eklerken rekürsif (recursive) yöntem
+    private AğaçNode EkleRec(AğaçNode kök, int veri)
+    {
+        if (kök == null) // Eğer ağacın kökü boşsa, yeni bir düğüm ekleriz
         {
-            head = newNode;
-            head.Next = head; //aynı şeyi gösterir 
-            head.Prev = head; //aynı şeyi gösterir 
+            kök = new AğaçNode(veri); // Yeni düğüm oluşturuluyor
+            return kök; // Yeni düğüm geri döndürülüyor
         }
-        else // boş değil yeni düğüm eklenmişse 
+
+        // Eğer eklenen veri küçükse, sol alt ağaca git
+        if (veri < kök.Veri)
         {
-            Node last = head.Prev;  //son düğümü bul
-            last.Next = newNode; // newNode'ye bağla 
-            newNode.Prev = last; // son düğüm artık yeni düğümü gösteriyor.
-            newNode.Next = head; // yeni düğümün sonraki elemanı listeniin başı
-            head.Prev = newNode; //head'ı güncelle
+            kök.Sol = EkleRec(kök.Sol, veri); // Sol alt ağaca veri ekleriz
+        }
+        // Eğer eklenen veri büyükse, sağ alt ağaca git
+        else if (veri > kök.Veri)
+        {
+            kök.Sağ = EkleRec(kök.Sağ, veri); // Sağ alt ağaca veri ekleriz
+        }
+
+        return kök; // Kökü geri döndürerek ağacın yapısını koruruz
+    }
+
+    // Pre-order (Önce kök, sonra sol, sonra sağ) gezintisi
+    public void PreOrder()
+    {
+        PreOrderRec(Kök); // Pre-order gezintisini başlatıyoruz
+    }
+
+    // Rekürsif Pre-order gezintisi (önce kökü yazar sonra sol sonra sağ)
+    private void PreOrderRec(AğaçNode node)
+    {
+        if (node != null) // Eğer düğüm boş değilse
+        {
+            Console.Write(node.Veri + " "); // Önce kök (düğüm) yazdırılır
+            PreOrderRec(node.Sol); // Sol alt ağaca geçilir
+            PreOrderRec(node.Sağ); // Sağ alt ağaca geçilir
         }
     }
 
-    // Belirtilen indisteki düğümü listeden silen metod
-    public void DeleteAtIndex(int index)
+    // In-order (Sol, kök, sağ) gezintisi
+    public void InOrder()
     {
-        if (head == null || index < 0) return; // Eğer liste boşsa veya geçersiz indeksse, işlemi sonlandır
+        InOrderRec(Kök); // In-order gezintisini başlatıyoruz (önce sol tarafı yazar,sonra kök sonra sağ taraf)
+    }
 
-        Node current = head; // current şuanki düğümü takip eder
-        int count = 0; // count , mevcut düğümün indeksini tutması için
-
-        // İstenen indekse kadar ilerle
-        do //Dairesel listeyi döngüyle tarıyoruz.
+    // Rekürsif In-order gezintisi (ortada kök) 
+    private void InOrderRec(AğaçNode node)
+    {
+        if (node != null) // Eğer düğüm boş değilse
         {
-            if (count == index)  //silinecek düğüme ulaşmak için
+            InOrderRec(node.Sol); // Sol alt ağaca geçilir
+            Console.Write(node.Veri + " "); // Kök (düğüm) yazdırılır
+            InOrderRec(node.Sağ); // Sağ alt ağaca geçilir
+        }
+    }
+
+    // Post-order (Sol, sağ, kök) gezintisi
+    public void PostOrder() // önce en sol , sağ ve en son kök
+    {
+        PostOrderRec(Kök); // Post-order gezintisini başlatıyoruz
+    }
+
+    // Rekürsif Post-order gezintisi (köke en son uğra)
+    private void PostOrderRec(AğaçNode node)
+    {
+        if (node != null) // Eğer düğüm boş değilse
+        {
+            PostOrderRec(node.Sol); // Sol alt ağaca geçilir
+            PostOrderRec(node.Sağ); // Sağ alt ağaca geçilir
+            Console.Write(node.Veri + " "); // Son olarak kök (düğüm) yazdırılır
+        }
+    }
+}
+
+public class Program
+{
+    public static void Main()
+    {
+        Ağaç ağaç = new Ağaç(); // Yeni bir Ağaç nesnesi oluşturuyoruz
+
+        Console.WriteLine("Ağaçta kaç eleman olmasını istersiniz?"); // Kullanıcıdan ağaç için eleman sayısı isteniyor
+        int elemanSayisi;
+        while (!int.TryParse(Console.ReadLine(), out elemanSayisi) || elemanSayisi <= 0) // Geçerli bir sayı alınması sağlanıyor
+        {
+            Console.WriteLine("Lütfen geçerli bir pozitif sayı girin."); // Hatalı giriş olursa kullanıcıyı uyarıyoruz
+        }
+
+        // Kullanıcıdan her bir elemanı alıp ağaca ekliyoruz
+        for (int i = 0; i < elemanSayisi; i++)
+        {
+            Console.WriteLine($"{i + 1}. elemanı girin:"); // Kullanıcıya eleman girme isteği
+            int eleman;
+            while (!int.TryParse(Console.ReadLine(), out eleman)) // Kullanıcıdan geçerli bir sayı alıyoruz
             {
-                if (current == head && current.Next == head)
-                {
-                    // Listede tek eleman varsa listeyi boşalt
-                    head = null;
-                }
-                else if (current == head)
-                {
-                    // Eğer silinecek düğüm baş düğümse (head) ise 
-                    Node last = head.Prev; // Son düğümü bul
-                    head = head.Next; // Başlığı bir sonraki düğüme kaydır
-                    head.Prev = last; // Yeni başın önceki düğümü güncelle
-                    last.Next = head; // Son düğümün yeni başı işaret etmesini sağla // sayıyı sildikten sonraki düzen için gerekli kodlar
-                }
-                else
-                {
-                    // Orta veya son düğümse
-                    current.Prev.Next = current.Next; // Önceki düğümün Next bağlantısı, şu anki düğümün sonrasına bağlanır.
-                    current.Next.Prev = current.Prev; // Sonraki düğümün Prev bağlantısı, şu anki düğümün öncesine bağlanır.
-                }
-                return;
+                Console.WriteLine("Lütfen geçerli bir sayı girin."); // Hatalı girişte kullanıcıya uyarı
             }
-            current = current.Next; //belirtilen indeksteki düğümü bulana kadar
-            count++; // tarama yapılır
-        } while (current != head); // Dairesel liste olduğu için başa dönene kadar devam et
-    }
-
-    // Listenin elemanlarını ekrana yazdıran metod
-    public void Display()
-    {
-        if (head == null) // boş liste kontrolü 
-        {
-            Console.WriteLine("Liste boş!");
-            return;
-        }
-        // Liste boş değilse, ilk elemandan başlamak üzere yazdırma işlemi yapılacak.
-        Node temp = head; // elemanların sırasını takip etmek için
-        int index = 0;
-        do
-        {
-            Console.Write("[" + index + "] " + temp.Data + " <-> "); // Her bir elemanı [index] Data <-> şeklinde ekrana yazdırır.
-
-            temp = temp.Next; //temp bir sonraki elemana yönlendirilir 
-            index++; // bir sonraki eleman için index arttırılır.
-        } while (temp != head); // başa döner
-        Console.WriteLine("(Başa Dön)");
-    }
-}
-
-// Programın çalışmasını sağlayan ana sınıf
-class Program
-{
-    static void Main()
-    {
-        ÇiftYönlüDaireselBağlıListe list = new ÇiftYönlüDaireselBağlıListe();
-
-        Console.Write("Kaç eleman eklemek istiyorsunuz? ");
-        int n = int.Parse(Console.ReadLine()); // veri alıyoruz 
-
-        for (int i = 0; i < n; i++) // kullanıcıdan belirtilen sayı kadar veri alıyoruz 
-        {
-            Console.Write("Eleman girin: ");
-            int value = int.Parse(Console.ReadLine());
-            list.Add(value); //elemanı listeye ekliyoruz 
+            ağaç.Ekle(eleman); // Kullanıcının girdiği elemanı ağaca ekliyoruz
         }
 
-        Console.WriteLine("Başlangıç Listesi:"); //ekrana yazdırıyoruz 
-        list.Display();
+        // Pre-order gezintisini başlatıyoruz
+        Console.WriteLine("\nPre-order gezintisi:");
+        ağaç.PreOrder(); // Pre-order gezintisi yapılır
+        Console.WriteLine(); // Satır sonu ekliyoruz
 
-        Console.Write("Silmek istediğiniz elemanın indeksini girin: ");
-        int deleteIndex = int.Parse(Console.ReadLine()); //silmek istediğimiz indeksi alıp siliyoruz
+        // In-order gezintisini başlatıyoruz
+        Console.WriteLine("In-order gezintisi:");
+        ağaç.InOrder(); // In-order gezintisi yapılır
+        Console.WriteLine(); // Satır sonu ekliyoruz
 
-        list.DeleteAtIndex(deleteIndex); //siliiyor
-
-        Console.WriteLine("Güncellenmiş Liste:"); // son liste
-        list.Display();
+        // Post-order gezintisini başlatıyoruz
+        Console.WriteLine("Post-order gezintisi:");
+        ağaç.PostOrder(); // Post-order gezintisi yapılır
+        Console.WriteLine(); // Satır sonu ekliyoruz
     }
 }
 
